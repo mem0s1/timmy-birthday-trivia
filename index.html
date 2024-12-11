@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timmy's Birthday Trivia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffe6e6;
+            color: #d90429;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .banner {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+        .container {
+            text-align: center;
+            margin: 20px;
+        }
+        .button {
+            background-color: #d90429;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #a8001a;
+        }
+        .question {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .options button {
+            background-color: #d90429;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            display: block;
+        }
+        .options button.correct {
+            background-color: #38b000 !important;
+        }
+        .options button:hover {
+            background-color: #a8001a;
+        }
+        .progress-bar {
+            width: 100%;
+            max-width: 800px;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px auto;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #d90429;
+            width: 0;
+            transition: width 0.5s;
+        }
+        .feedback {
+            margin: 20px;
+            font-size: 18px;
+        }
+        .end-screen {
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="start-screen" class="container">
+        <img src="https://i.imgur.com/t1c56YZ.png" alt="Timmy's Birthday Banner" class="banner">
+        <h2>Are you ready to answer questions?</h2>
+        <button class="button" onclick="startGame()">Start Game</button>
+    </div>
+    <div id="game-screen" class="container" style="display: none;">
+        <div class="progress-bar">
+            <div id="progress-bar-fill" class="progress-bar-fill"></div>
+        </div>
+        <div id="question-container">
+            <div id="question" class="question"></div>
+            <div id="options" class="options"></div>
+        </div>
+        <div id="feedback" class="feedback"></div>
+    </div>
+    <div id="end-screen" class="container end-screen">
+        <h2>Du har klarat quizet! 🎉</h2>
+        <p id="final-score"></p>
+        <button class="button" onclick="location.reload()">Play Again</button>
+    </div>
+    <script>
+        const questions = [
+            {
+                question: "Vad är det enda rätta att säga när något luktar bränt?",
+                options: ["What's going on?", "Spenatknytena!", "Vad är det som brinner?", "Satte du på grillen!"],
+                correct: 1
+            },
+            {
+                question: "Om Timmy fick hänga en dag med vilka Youtubers som helst, vilka hade han valt?",
+                options: ["Jonas, Lucas och Carl från JLC", "Christofer Berg och Anjo", "SampeV2 och MrBeast", "Matt Stoney och Matkoma"],
+                correct: 1
+            },
+            {
+                question: "Vilken film kan Timmy citera i sin helhet?",
+                options: ["Hercules", "Shrek", "Toy Story", "Hitta Nemo"],
+                correct: 1
+            },
+            {
+                question: "Vilket ställe serverar, utan tvekan, de godaste donutsen i världen?",
+                options: ["Julmarknaden, Oslo", "Universal Studios, Hollywood", "Creperie-stånd på Croisetten, Nice", "iHop, Los Angeles"],
+                correct: 1
+            },
+            {
+                question: "Vad hände när vi åkte igenom Stockton i Kalifornien?",
+                options: ["Vi råkade köpa McDonald's för 2500 SEK och glömde sen påsen", "Vi hade en underbar vistelse", "Vi körde mot rött för att inte bli jagade av kriminella", "Vi såg en kvinna som höll på att föda barn i en bil"],
+                correct: 2
+            },
+            {
+                question: "Vilken spelare i HIF hade Timmy offrat ALLA andra i laget för?",
+                options: ["Taylor Silverholt", "Adrian Svanbäck", "Wilhelm Loeper", "Kalle Joelsson"],
+                correct: 2
+            },
+            {
+                question: "Vilken skådespelare är Timmys 'free card'?",
+                options: ["Ryan Gosling", "Nora i 'Skam'", "Zendaya", "Pedro Pascal"],
+                correct: 0
+            },
+            {
+                question: "Vilken av dessa saker skulle Timmy ta med sig till en bowlingkväll?",
+                options: ["Ett specialbeställt bowlingklot som passar hans hand perfekt", "Ett par bowlingskor", "Ombyte för att kunna svettas ordentligt", "En egen vattenflaska"],
+                correct: 1
+            },
+            {
+                question: "Hur mycket Coca Cola Zero dricker Timmy i snitt på ett år?",
+                options: ["En uppblåsbar barnpool (390 liter)", "En halv jacuzzi (775 liter)", "10 fulla badkar (1460 liter)", "2570 mjölkpaket (2570 liter)"],
+                correct: 2
+            },
+            {
+                question: "Vilken är en av Timmys speciella egenskaper?",
+                options: ["Han kan snabbt räkna ut resultatet på en valvaka, innan det annonseras", "Han kan se exakt hur stor plats något tar (som t ex mat i en matlåda), och avgöra hur stor volym som behövs", "Han vet precis när glödlampor eller batterier ska bytas ut, och har oftast redan köpt det innan jag märker något", "Han kan veta vad det blir för väder nästa dag, genom att titta på himlen dagen innan och studera molnen"],
+                correct: 0
+            },
+            {
+                question: "Vilken förrätt hade Timmy valt på Tennstopet?",
+                options: ["Toast Pelle Janzon", "Råraka med löjrom, smetana och rödlök", "Toast Skagen", "SOS (smör, ost, sill)"],
+                correct: 3
+            },
+            {
+                question: "Vilken ingrediens ber Timmy mest sannolikt att få extra av?",
+                options: ["Koriander", "Picklad rödlök", "Tomat", "Sås"],
+                correct: 3
+            },
+            {
+                question: "Om Timmy var tvungen att välja en absoluta-favorit-julkalender, vilken hade han valt?",
+                options: ["Mysteriet på Greveholm", "Sunes Jul", "Tomtemaskinen (Pettson & Findus)", "Julens Hjältar"],
+                correct: 3
+            },
+            {
+                question: "Vad säger man när man vill döda en idé?",
+                options: ["Det här går inte!", "Stek den.", "Låt det vara baa-raa!", "Dags att gå vidare brorsan."],
+                correct: 1
+            },
+            {
+                question: "Vad blev vi kallade på vår resa i Zanzibar?",
+                options: ["The Swedish Rats", "The King and Queen of Zanzibar", "Snorkeling Couple", "Victoria and David Beckham"],
+                correct: 1
+            },
+            {
+                question: "Hämta upp Timmys subway-beställning, vilken är det?",
+                options: ["Chicken teriyaki wrap, extra kött, allt på, utom gurka. Extra vitlökssås.", "Italian B.M.T sub (oregano bröd), allt på. Aioli.", "Italian B.M.T wrap, dubbelt kött, mild ost, extra sallad, gurka, paprika, extra oliver och jalapeños, salt och peppar. Extra vitlökssås.", "Steak & Cheese wrap, trippelt kött, allt på. Extra currysås."],
+                correct: 2
+            }
+        ];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        function startGame() {
+            document.getElementById("start-screen").style.display = "none";
+            document.getElementById("game-screen").style.display = "block";
+            showQuestion();
+        }
+        function showQuestion() {
+            const questionElement = document.getElementById("question");
+            const optionsElement = document.getElementById("options");
+            const progressBarFill = document.getElementById("progress-bar-fill");
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            optionsElement.innerHTML = "";
+            progressBarFill.style.width = `${((currentQuestionIndex) / questions.length) * 100}%`;
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.onclick = () => handleAnswer(index, button, currentQuestion.correct);
+                optionsElement.appendChild(button);
+            });
+        }
+        function handleAnswer(selectedIndex, selectedButton, correctIndex) {
+            const feedbackElement = document.getElementById("feedback");
+            const optionsElement = document.getElementById("options");
+            const correctButton = optionsElement.children[correctIndex];
+            if (selectedIndex === correctIndex) {
+                feedbackElement.textContent = "Rätt! 🎉";
+                feedbackElement.style.color = "#38b000";
+                score++;
+            } else {
+                feedbackElement.textContent = "Fel svar 😢";
+                feedbackElement.style.color = "#d90429";
+            }
+            // Highlight the correct answer
+            correctButton.classList.add("correct");
+            setTimeout(() => {
+                feedbackElement.textContent = "";
+                correctButton.classList.remove("correct");
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    showQuestion();
+                } else {
+                    endGame();
+                }
+            }, 700);
+        }
+        function endGame() {
+            document.getElementById("game-screen").style.display = "none";
+            document.getElementById("end-screen").style.display = "block";
+            document.getElementById("final-score").textContent = `Din slutpoäng är: ${score}/${questions.length} 🎂`;
+        }
+    </script>
+</body>
+</html>
